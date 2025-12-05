@@ -80,7 +80,7 @@ As a user, I want an audible notification mechanism that can announce steps like
 ### Edge Cases
 
 - What happens if the publishing platform initialization fails (e.g., due to existing files)? The process should report the error and stop.
-- How does the system handle the audible notification mechanism not being available on the user's local terminal? The mechanism should ideally check for availability and provide a helpful error message or fallback.
+- How does the system handle the audible notification mechanism not being available on the user's local terminal? The mechanism should assume `espeak` is always available and not handle its absence.
 
 ## Requirements *(mandatory)*
 
@@ -91,7 +91,7 @@ As a user, I want an audible notification mechanism that can announce steps like
 - **FR-003**: System MUST remove default content folders and their associated navigation links from the publishing platform.
 - **FR-004**: System MUST create the content directories `docs/01-foundations`, `docs/02-simulation`, `docs/03-perception`, `docs/04-vla`.
 - **FR-005**: System MUST create a placeholder file within each of the new `docs/` subfolders.
-- **FR-006**: System MUST provide an audible notification mechanism for logging agent actions (e.g., performing actions, accessing information) on the user's local terminal.
+- **FR-006**: System MUST provide an audible notification mechanism for logging agent actions (e.g., performing actions, accessing information) on the user's local terminal. The preferred approach is to directly call `espeak` with hardcoded messages for each action.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -108,3 +108,12 @@ As a user, I want an audible notification mechanism that can announce steps like
 - **SC-004**: The default content and navigation links are completely removed from the platform.
 - **SC-005**: The specified `docs/` content organization structure with placeholder files is correctly created.
 - **SC-006**: A functional audible notification mechanism is provided that can produce output on the user's local terminal.
+
+## Clarifications
+
+### Session 2025-12-05
+
+- Q: Are there any explicit out-of-scope functionalities or features for this initial Docusaurus setup? → A: No additional features.
+- Q: What are the target performance metrics (e.g., page load time, build time) for the Docusaurus site? → A: No specific performance targets.
+- Q: What is the preferred approach for implementing the audible notification mechanism (FR-006)? → A: Directly call `espeak` with hardcoded messages for each action.
+- Q: How should the system handle the audible notification mechanism (FR-006) if `espeak` is not available on the user's local terminal? → A: Assume `espeak` is always available and do not handle its absence.

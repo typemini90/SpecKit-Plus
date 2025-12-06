@@ -88,8 +88,8 @@ const config: Config = {
           title: 'Textbook',
           items: [
             {
-              label: 'Foundations',
-              to: '/docs/foundations',
+              label: 'Robotic Nervous System',
+              to: '/docs/module-01-robotic-nervous-system',
             },
           ],
         },

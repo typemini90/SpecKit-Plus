@@ -20,23 +20,23 @@ const sidebars: SidebarsConfig = {
   tutorialSidebar: [
       {
       type: 'category',
-      label: 'Foundations',
-      items: ['foundations/index'],
+      label: 'Robotic Nervous System',
+      items: ['module-01-robotic-nervous-system/intro'],
     },
     {
       type: 'category',
-      label: 'Simulation',
-      items: ['simulation/index'],
+      label: 'Digital Twin',
+      items: ['module-02-digital-twin/intro'],
     },
     {
       type: 'category',
-      label: 'Perception',
-      items: ['perception/index'],
+      label: 'AI Robot Brain',
+      items: ['module-03-ai-robot-brain/intro'],
     },
     {
       type: 'category',
-      label: 'VLA',
-      items: ['vla/index'],
+      label: 'Vision Language Action',
+      items: ['module-04-vision-language-action/intro'],
     },
   ],
 };

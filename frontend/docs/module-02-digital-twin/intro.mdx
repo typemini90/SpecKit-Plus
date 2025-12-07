@@ -2,9 +2,30 @@
 sidebar_position: 1
 ---
 
-
+import RobotPathSimulator from '@site/src/components/RobotPathSimulator';
+import Quiz from '@site/src/components/Quiz';
 
 # CHAPTER 2
 ## Why we simulate
 
 Simulation serves as the cornerstone of embodied intelligence development, allowing us to test and validate robotic systems in safe, controlled virtual environments before deploying them in the real world. Through simulation, we can accelerate development cycles, reduce costs, and ensure safety by identifying potential issues before physical implementation.
+
+## Interactive Path Planning
+
+See how robots navigate around obstacles in simulation:
+
+<RobotPathSimulator />
+
+## Test Your Understanding
+
+<Quiz
+  question="Why is simulation important for embodied intelligence?"
+  options={[
+    "To test systems safely before physical deployment",
+    "To reduce computational requirements",
+    "To increase hardware costs",
+    "To eliminate the need for AI"
+  ]}
+  answer={0}
+  explanation="Simulation allows testing and validation of robotic systems in safe, controlled virtual environments before deploying them in the real world, reducing risks and costs."
+/>

@@ -2,9 +2,30 @@
 sidebar_position: 1
 ---
 
-
+import NeuralNetworkSimulator from '@site/src/components/NeuralNetworkSimulator';
+import Quiz from '@site/src/components/Quiz';
 
 # CHAPTER 1
 ## From Digital AI to Physical AI
 
 The transition from digital artificial intelligence to physical embodied intelligence represents a paradigm shift in how we conceptualize and implement AI systems. While traditional AI operates in virtual spaces, embodied intelligence brings cognition into the physical world through robots and other physical agents that can perceive, reason, and act in real environments.
+
+## Interactive Neural Network
+
+Try adjusting the inputs and weights to see how a neural network processes information:
+
+<NeuralNetworkSimulator />
+
+## Test Your Understanding
+
+<Quiz
+  question="What is the main advantage of embodied AI over traditional AI?"
+  options={[
+    "Better learning from environment",
+    "More computational power",
+    "Faster processing",
+    "Cheaper hardware"
+  ]}
+  answer={0}
+  explanation="Embodied AI learns from direct interaction with the physical environment, which provides richer and more realistic training data compared to simulated or abstract environments."
+/>

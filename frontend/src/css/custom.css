@@ -6,52 +6,90 @@
 
 /* You can override the default Infima variables here. */
 :root {
-  --ifm-color-primary: #2e8555;
-  --ifm-color-primary-dark: #29784c;
-  --ifm-color-primary-darker: #277148;
-  --ifm-color-primary-darkest: #205d3b;
-  --ifm-color-primary-light: #33925d;
-  --ifm-color-primary-lighter: #359962;
-  --ifm-color-primary-lightest: #3cad6e;
+  --ifm-color-primary: #00cc44;
+  --ifm-color-primary-dark: #00b33c;
+  --ifm-color-primary-darker: #00a337;
+  --ifm-color-primary-darkest: #008a2e;
+  --ifm-color-primary-light: #00e64d;
+  --ifm-color-primary-lighter: #1aff5c;
+  --ifm-color-primary-lightest: #33ff70;
+  --ifm-color-secondary: #00ff41;
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme='dark'] {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: #21af90;
-  --ifm-color-primary-darker: #1fa588;
-  --ifm-color-primary-darkest: #1a8870;
-  --ifm-color-primary-light: #29d5b0;
-  --ifm-color-primary-lighter: #32d8b4;
-  --ifm-color-primary-lightest: #4fddbf;
+  --ifm-color-primary: #00ff41;
+  --ifm-color-primary-dark: #00e63a;
+  --ifm-color-primary-darker: #00d636;
+  --ifm-color-primary-darkest: #00b32e;
+  --ifm-color-primary-light: #1aff52;
+  --ifm-color-primary-lighter: #2dff62;
+  --ifm-color-primary-lightest: #4cff75;
+  --ifm-color-secondary: #00cc44;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
-/* Ensure text is readable over MatrixCanvas background */
-div[style*="zIndex"] {
-  background-color: rgba(255, 255, 255, 0.85);
-  padding: 2rem;
-  border-radius: 8px;
-  margin: 1rem 0;
+/* Matrix-themed navbar */
+.navbar {
+  background: rgba(0, 20, 10, 0.95) !important;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 255, 65, 0.3);
 }
 
-[data-theme='dark'] div[style*="zIndex"] {
-  background-color: rgba(20, 20, 20, 0.85);
-  color: white;
+[data-theme='dark'] .navbar {
+  background: rgba(0, 10, 5, 0.95) !important;
+  border-bottom: 1px solid rgba(0, 255, 65, 0.3);
 }
 
-/* Ensure text color is readable in both themes */
-div[style*="zIndex"] h1,
-div[style*="zIndex"] h2,
-div[style*="zIndex"] h3,
-div[style*="zIndex"] h4,
-div[style*="zIndex"] h5,
-div[style*="zIndex"] h6,
-div[style*="zIndex"] p,
-div[style*="zIndex"] li {
-  color: var(--ifm-font-color-base) !important;
+/* Matrix-themed footer */
+.footer {
+  background: rgba(0, 15, 5, 1) !important;
+  border-top: 1px solid rgba(0, 255, 65, 0.3);
+  color: #00ff41;
+}
+
+[data-theme='dark'] .footer {
+  background: rgba(0, 5, 2, 1) !important;
+  border-top: 1px solid rgba(0, 255, 65, 0.3);
+}
+
+/* Matrix-themed footer links */
+.footer a {
+  color: #00ff41 !important;
+}
+
+.footer a:hover {
+  color: #00ff80 !important;
+  text-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
+}
+
+/* Matrix-themed buttons */
+.button--primary {
+  background-color: #00cc44 !important;
+  border-color: #00cc44 !important;
+  color: white !important;
+  text-shadow: none;
+}
+
+.button--primary:hover {
+  background-color: #00ff41 !important;
+  border-color: #00ff41 !important;
+  color: white !important;
+  text-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
+}
+
+.button--secondary {
+  background-color: transparent !important;
+  border-color: #00ff41 !important;
+  color: #00ff41 !important;
+}
+
+.button--secondary:hover {
+  background-color: rgba(0, 255, 65, 0.1) !important;
+  color: #00ff80 !important;
+  text-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
 }
 
 /* Ensure text is readable over MatrixCanvas background */
@@ -93,4 +131,13 @@ canvas[style*="fixed"] {
 /* Ensure sidebar stays on top */
 .navbar-sidebar, .sidebar, .menu {
   z-index: 10000 !important;
+}
+
+/* Matrix-themed headings */
+h1, h2, h3, h4, h5, h6 {
+  color: #00ff41 !important;
+}
+
+[data-theme='dark'] h1, [data-theme='dark'] h2, [data-theme='dark'] h3, [data-theme='dark'] h4, [data-theme='dark'] h5, [data-theme='dark'] h6 {
+  color: #00ff41 !important;
 }

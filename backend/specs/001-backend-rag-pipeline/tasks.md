@@ -22,7 +22,7 @@ This document breaks down the implementation of the Backend RAG Pipeline into sp
 - **Acceptance Criteria**:
   - QDRANT_URL variable defined ✅
   - QDRANT_API_KEY variable defined ✅
-  - OPENAI_API_KEY variable defined ✅
+  - GEMINI_API_KEY variable defined ✅
 - **Priority**: High
 - **Time Estimate**: 10 min
 

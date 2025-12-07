@@ -7,7 +7,7 @@ This guide provides step-by-step instructions for setting up and running the Bac
 - Python 3.10 or higher
 - uv package manager (or pip)
 - Access to Qdrant Cloud instance
-- OpenAI API key
+- Gemini API key
 
 ## Setup Instructions
 
@@ -37,7 +37,7 @@ Edit the `.env` file and add your credentials:
 ```
 QDRANT_URL=your_qdrant_cloud_url
 QDRANT_API_KEY=your_qdrant_api_key
-OPENAI_API_KEY=your_openai_api_key
+GEMINI_API_KEY=your_gemini_api_key
 ```
 
 ### 4. Index Documents
@@ -118,7 +118,7 @@ Expected response:
 ### Common Issues
 1. **Environment Variables Not Set**: Ensure all required environment variables are properly set in your `.env` file
 2. **Qdrant Connection Issues**: Verify QDRANT_URL and QDRANT_API_KEY are correct
-3. **OpenAI API Errors**: Check that OPENAI_API_KEY is valid and has sufficient quota
+3. **Gemini API Errors**: Check that GEMINI_API_KEY is valid and has sufficient quota
 4. **Document Processing Issues**: Verify that `../docs` directory exists and contains .md/.mdx files
 
 ### Logging

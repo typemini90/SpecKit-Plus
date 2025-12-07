@@ -70,11 +70,11 @@ Structured answer from the system with appropriate status information
 1. **Query Received**: User submits a `Query`
 2. **Similarity Search**: Qdrant is searched for relevant `DocumentChunk` entities
 3. **Context Collected**: Retrieved chunks form the context for answer generation
-4. **Answer Generated**: Using OpenAI API with context
+4. **Answer Generated**: Using Gemini API with context
 5. **Response Formed**: `Response` is created and returned to user
 
 ### Selection Process
 1. **Selection Received**: User submits `Selection` with text and question
 2. **Context Formed**: Selected text is used as context for answer generation
-3. **Answer Generated**: Using OpenAI API with provided context
+3. **Answer Generated**: Using Gemini API with provided context
 4. **Response Formed**: `Response` is created and returned to user

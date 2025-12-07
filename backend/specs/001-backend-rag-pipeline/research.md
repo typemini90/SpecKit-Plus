@@ -16,8 +16,8 @@
 2. Weaviate - More complex setup and configuration
 3. FAISS - Requires more manual implementation of features Qdrant provides out of the box
 
-## Decision: OpenAI API for Answer Generation
-**Rationale**: OpenAI API provides high-quality answer generation capabilities that integrate well with the RAG pattern, producing human-readable answers from retrieved context.
+## Decision: Gemini API for Answer Generation with OpenAI Compatibility
+**Rationale**: Gemini API provides high-quality answer generation capabilities that integrate well with the RAG pattern, producing human-readable answers from retrieved context. The OpenAI-compatible interface allows using the same SDK and patterns as OpenAI.
 
 **Alternatives considered**:
 1. Open-source LLMs like Llama - Require more infrastructure and fine-tuning

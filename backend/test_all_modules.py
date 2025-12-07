@@ -71,7 +71,7 @@ class TestVectorStore(unittest.TestCase):
 class TestRAGService(unittest.TestCase):
     def setUp(self):
         # Mock the OpenAI client to avoid needing real credentials for tests
-        with patch.dict(os.environ, {"OPENAI_API_KEY": "test_key"}):
+        with patch.dict(os.environ, {"GEMINI_API_KEY": "test_key"}):
             self.rag_service = RAGService()
         
         # Mock vector store

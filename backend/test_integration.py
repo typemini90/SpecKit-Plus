@@ -36,7 +36,7 @@ class TestAPIIntegration(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
 
-    @patch.dict(os.environ, {"OPENAI_API_KEY": "test_key"})
+    @patch.dict(os.environ, {"GEMINI_API_KEY": "test_key"})
     @patch('main.rag_service')
     def test_query_endpoint(self, mock_rag_service):
         """Test the query endpoint."""
@@ -54,7 +54,7 @@ class TestAPIIntegration(unittest.TestCase):
         self.assertIn("answer", response_json)
         self.assertIn("sources", response_json)
 
-    @patch.dict(os.environ, {"OPENAI_API_KEY": "test_key"})
+    @patch.dict(os.environ, {"GEMINI_API_KEY": "test_key"})
     @patch('main.rag_service')
     def test_selection_endpoint(self, mock_rag_service):
         """Test the selection endpoint."""

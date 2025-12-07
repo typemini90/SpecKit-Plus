@@ -10,26 +10,26 @@
 - Document indexer for .md and .mdx files
 - Qdrant vector database for storing embeddings
 - FastEmbed MiniLM-L6-v2 for generating 384-dimensional embeddings
-- OpenAI API for answer generation
+- Gemini API for answer generation using OpenAI-compatible interface
 
 **Technology Stack**:
 - Python 3.13+
 - FastAPI for web framework
 - FastEmbed for local embeddings
 - Qdrant Client for vector storage
-- OpenAI SDK for answer generation
+- OpenAI SDK for Gemini API compatibility
 - Pydantic for request/response validation
 - Loguru for logging
 
 **Dependencies**:
 - Qdrant Cloud (with URL and API key)
-- OpenAI API key
+- GEMINI_API_KEY
 - ../docs directory with .md/.mdx files
 
 **Integration Points**:
 - File system access to ../docs directory
 - Qdrant Cloud service
-- OpenAI API
+- Gemini API
 
 **Unknowns**: 
 - None (all requirements clearly specified in feature spec)
@@ -139,7 +139,7 @@ Error: 400/500 with structured JSON error
 The following technology will be added to the agent context:
 - FastEmbed for embedding generation
 - Qdrant for vector storage
-- OpenAI API for answer generation
+- Gemini API for answer generation
 - FastAPI for web framework
 
 ### Phase 1 Completion Status
@@ -173,7 +173,7 @@ The following technology will be added to the agent context:
 
 4. **RAG Service (`rag.py`)**:
    - Query handling with context retrieval from Qdrant
-   - Answer generation using OpenAI API
+   - Answer generation using Gemini API
    - Selection-based answering using provided text
    - "I don't know" responses when context is insufficient
    - Error handling for external API calls
@@ -189,7 +189,7 @@ The following technology will be added to the agent context:
 6. **Environment Configuration (`.env.example`)**:
    - QDRANT_URL
    - QDRANT_API_KEY
-   - OPENAI_API_KEY
+   - GEMINI_API_KEY
 
 ## Dependencies and Sequencing
 

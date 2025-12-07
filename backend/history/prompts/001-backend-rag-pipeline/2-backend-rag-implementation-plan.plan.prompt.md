@@ -235,7 +235,7 @@ The following technology will be added to the agent context:
 6. **Environment Configuration (`.env.example`)**:
    - QDRANT_URL
    - QDRANT_API_KEY
-   - OPENAI_API_KEY
+   - GEMINI_API_KEY
 
 ## Dependencies and Sequencing
 

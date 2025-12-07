@@ -32,13 +32,17 @@ class RAGService:
         Initialize the RAG service with required components.
         """
         try:
-            # Initialize OpenAI client
-            openai_api_key = os.getenv("OPENAI_API_KEY")
-            if not openai_api_key:
-                raise ValueError("OPENAI_API_KEY must be set in environment variables")
-            
-            self.openai_client = OpenAI(api_key=openai_api_key)
-            
+            # Initialize OpenAI client with Gemini
+            gemini_api_key = os.getenv("GEMINI_API_KEY")
+            if not gemini_api_key:
+                raise ValueError("GEMINI_API_KEY must be set in environment variables")
+
+            self.openai_client = OpenAI(
+                api_key=gemini_api_key,
+                base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+            )
+            self.model = "gemini-2.0-flash"
+
             # We'll initialize vector store separately to avoid circular dependencies
             self.vector_store = None
         except Exception as e:
@@ -94,7 +98,7 @@ class RAGService:
             """
             
             response = self.openai_client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model=self.model,
                 messages=[
                     {"role": "system", "content": "You are a helpful assistant that answers questions based only on the provided context. If the context does not contain sufficient information to answer the question, respond with 'I don't know'."},
                     {"role": "user", "content": prompt}
@@ -138,7 +142,7 @@ class RAGService:
             """
             
             response = self.openai_client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model=self.model,
                 messages=[
                     {"role": "system", "content": "You are a helpful assistant that answers questions based only on the provided selected text. If the selected text does not contain sufficient information to answer the question, respond with 'I don't know'."},
                     {"role": "user", "content": prompt}

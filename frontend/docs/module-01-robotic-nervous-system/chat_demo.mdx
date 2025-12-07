@@ -1,0 +1,23 @@
+---
+sidebar_position: 6
+---
+
+import ChatInterface from '@site/src/components/ChatInterface';
+
+# AI Assistant Demo
+
+Try out our AI-powered chatbot that can answer questions about the Embodied Intelligence textbook content:
+
+<ChatInterface />
+
+## How to Use
+
+1. **General Questions**: Type any question about robotics, AI, or textbook content in the input field
+2. **Selection-Based Questions**:
+   - Select text from anywhere on this page (or any textbook page)
+   - Click the "Ask about selected text" button
+   - The input field will be pre-filled with the selected text
+   - Add your specific question about the selected content
+   - Press Send to get an answer based only on that text
+
+The chatbot uses our RAG (Retrieval Augmented Generation) system to provide accurate answers based on the textbook content. For general questions, it searches the entire knowledge base. For selection-based questions, it answers only based on the specific text you've selected.

@@ -1,0 +1,118 @@
+openapi: 3.0.0
+info:
+  title: Chatbot API for Embodied Intelligence Textbook
+  description: API contracts for chatbot functionality that integrates with existing RAG system
+  version: 1.0.0
+
+paths:
+  /api/query:
+    post:
+      summary: Query the RAG system for textbook content
+      description: Send a question to the RAG system and receive an AI-generated response based on indexed textbook content
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryRequest'
+      responses:
+        '200':
+          description: Successful response with answer and sources
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/selection:
+    post:
+      summary: Answer question based on selected text
+      description: Send a question about selected text and receive an AI-generated response based only on the provided text
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SelectionRequest'
+      responses:
+        '200':
+          description: Successful response with answer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SelectionResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    QueryRequest:
+      type: object
+      properties:
+        query:
+          type: string
+          description: The question or query from the user
+          example: "What is the main advantage of embodied AI over traditional AI?"
+      required:
+        - query
+
+    QueryResponse:
+      type: object
+      properties:
+        answer:
+          type: string
+          description: The AI-generated answer to the query
+          example: "The main advantage of embodied AI over traditional AI is that it learns from direct interaction with the physical environment, which provides richer and more realistic training data."
+        sources:
+          type: array
+          items:
+            type: string
+          description: List of document paths that contributed to the response
+          example: ["../docs/module-01-robotic-nervous-system/intro.mdx", "../docs/module-02-digital-twin/intro.mdx"]
+      required:
+        - answer
+        - sources
+
+    SelectionRequest:
+      type: object
+      properties:
+        selected_text:
+          type: string
+          description: The text selected by the user
+          example: "The transition from digital artificial intelligence to physical embodied intelligence represents a paradigm shift..."
+        question:
+          type: string
+          description: The question about the selected text
+          example: "What does this text mean by 'paradigm shift'?"
+      required:
+        - selected_text
+        - question
+
+    SelectionResponse:
+      type: object
+      properties:
+        answer:
+          type: string
+          description: The AI-generated answer to the question based on the selected text
+          example: "In this context, 'paradigm shift' refers to a fundamental change in how we approach AI development..."
+      required:
+        - answer
+
+    ErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+          description: Error message describing what went wrong
+          example: "Internal server error occurred while processing query"
+      required:
+        - detail

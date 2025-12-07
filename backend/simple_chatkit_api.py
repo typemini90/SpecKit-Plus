@@ -190,6 +190,10 @@ class SimpleChatKitServer(ChatKitServer):
             content=[AssistantMessageContent(text=answer)]
         )
 
+        # Add the message to the store
+        await self.store.add_thread_item(thread.id, assistant_message, context)
+
+        # Return the assistant message
         return assistant_message
 
 server = SimpleChatKitServer(store=store)

@@ -1,227 +1,148 @@
-"""
-Main FastAPI application for the Backend RAG System with ChatKit integration.
-"""
 import logging
-from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import List, Optional
-from loguru import logger
-import os
-from dotenv import load_dotenv
+import json
+from fastapi import FastAPI, Request, Response
+from fastapi.responses import StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
 
-# Load environment variables
-load_dotenv()
+from agents import Agent, Runner
+from agents.models.openai_chatcompletions import OpenAIChatCompletionsModel
+from agents.run import RunConfig
+from openai import AsyncOpenAI
 
-# Import our modules (these will be imported after they are defined)
-from embeddings import EmbeddingService
-from vector_store import VectorStore
-from rag import RAGService, QueryRequest, QueryResponse, SelectionRequest, SelectionResponse
-
-# Import unified ChatKit API with RAG capabilities
-from chatkit_service import app as chatkit_app
-
-# Global variable to hold the RAG service instance
-rag_service = None
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """
-    Lifespan event handler for FastAPI application.
-    Initializes services on startup and cleans up on shutdown.
-    """
-    # Startup
-    global rag_service
-    try:
-        # Check if required environment variables are set
-        qwen_api_key = os.getenv("QWEN_API_KEY")
-        if not qwen_api_key:
-            logger.warning("QWEN_API_KEY not set. RAG service will not function properly.")
-
-        # Only initialize RAG service if Qdrant credentials are available (for RAG features)
-        qdrant_url = os.getenv("QDRANT_URL")
-        qdrant_api_key = os.getenv("QDRANT_API_KEY")
-
-        if qdrant_url and qdrant_api_key:
-            try:
-                # Initialize the vector store and RAG service for full functionality
-                vector_store = VectorStore()
-
-                # Test vector store connection
-                if vector_store.check_connection():
-                    logger.info("Qdrant connection successful")
-                else:
-                    logger.error("Could not connect to Qdrant. RAG service will not function properly.")
-                    vector_store = None
-            except Exception as e:
-                logger.error(f"Failed to initialize vector store: {e}")
-                vector_store = None
-
-            if vector_store:
-                try:
-                    rag_service = RAGService()
-
-                    # Test API connection
-                    if rag_service.check_api_connection():
-                        logger.info("OpenAI API connection successful")
-                    else:
-                        logger.error("Could not connect to OpenAI API. RAG service will not function properly.")
-                        rag_service = None
-                except Exception as e:
-                    logger.error(f"Failed to initialize RAG service: {e}")
-                    rag_service = None
-
-                if rag_service and vector_store:
-                    rag_service.set_vector_store(vector_store)
-                    logger.info("Full RAG services initialized successfully")
-                else:
-                    logger.error("RAG service initialization failed due to API or vector store connection issues.")
-                    rag_service = None
-            else:
-                logger.error("Vector store initialization failed. RAG service will not be available.")
-                rag_service = None
-        else:
-            # For MVP without Qdrant, just initialize the ChatKit service but warn about missing RAG
-            logger.info("Qdrant not configured - Only ChatKit service available, RAG functionality will be limited")
-            rag_service = None
-
-        yield
-    except Exception as e:
-        logger.error(f"Error during application startup: {e}")
-        raise
-    finally:
-        # Shutdown
-        logger.info("Application shutdown")
-
-# Create the main FastAPI app with lifespan
-app = FastAPI(
-    title="Backend RAG API with ChatKit",
-    description="API for the Backend RAG System for Physical AI & Humanoid Robotics with ChatKit integration",
-    version="1.0.0",
-    lifespan=lifespan
-)
-
-# Mount the ChatKit API
-app.mount("/chat", chatkit_app)
-
-# Add logging configuration
 logging.basicConfig(level=logging.INFO)
 
-class HealthResponse(BaseModel):
-    status: str
-    api_connected: bool = False
-    vector_store_connected: bool = False
-    rag_available: bool = False
+# QWEN CLIENT
+external_client = AsyncOpenAI(
+    api_key="6illN1cvAe5bRWVi3jIfMVwrzYNG3mciaS7-r5GGLQB5bvUxYoAaUAE80acFUeIsh-JIciuCwIrmc74dr1B7bw",
+    base_url="https://portal.qwen.ai/v1"
+)
 
-@app.get("/api/health", response_model=HealthResponse)
-async def health_check():
-    """
-    Health check endpoint to verify the service is operational.
+model = OpenAIChatCompletionsModel(
+    model="qwen3-coder-plus",
+    openai_client=external_client
+)
 
-    Returns:
-        HealthResponse: Status of the service with detailed information
-    """
-    api_connected = False
-    vector_store_connected = False
-    rag_available = False
+agent = Agent(
+    name="SocialMediaPoster",
+    instructions="hi",
+    model=model
+)
 
-    # Check if RAG service is initialized and connections are working
-    if rag_service:
-        # Check if both API and vector store are connected
+config = RunConfig()
+
+app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/test-qwen")
+async def test_qwen():
+    try:
+        r = await client.chat.completions.create(
+            model="qwen3-coder-plus",
+            messages=[{"role": "user", "content": "ping"}]
+        )
+        return {"reply": r.choices[0].message.content}
+    except Exception as e:
+        return {"error": str(e)}
+
+import logging
+import json
+from fastapi import FastAPI, Request, Response
+from fastapi.responses import StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
+
+from agents import Agent, Runner
+from agents.models.openai_chatcompletions import OpenAIChatCompletionsModel
+from agents.run import RunConfig
+from openai import AsyncOpenAI
+
+logging.basicConfig(level=logging.INFO)
+
+# QWEN CLIENT
+external_client = AsyncOpenAI(
+    api_key="6illN1cvAe5bRWVi3jIfMVwrzYNG3mciaS7-r5GGLQB5bvUxYoAaUAE80acFUeIsh-JIciuCwIrmc74dr1B7bw",
+    base_url="https://portal.qwen.ai/v1"
+)
+
+model = OpenAIChatCompletionsModel(
+    model="qwen3-coder-plus",
+    openai_client=external_client
+)
+
+agent = Agent(
+    name="SocialMediaPoster",
+    instructions="hi",
+    model=model
+)
+
+config = RunConfig()
+
+app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# TEST ENDPOINT (fixed client variable)
+@app.get("/test-qwen")
+async def test_qwen():
+    try:
+        r = await external_client.chat.completions.create(
+            model="qwen3-coder-plus",
+            messages=[{"role": "user", "content": "ping"}]
+        )
+        return {"reply": r.choices[0].message.content}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@app.post("/api/query")
+async def chatkit_endpoint(request: Request):
+    try:
+        raw = await request.body()
+        text = raw.decode().strip()
+        logging.info(f"Received raw: {text}")
+
+        # Accept both JSON body and plain text
         try:
-            api_connected = rag_service.check_api_connection()
+            data = json.loads(text)
+            user_input = data.get("message") or data.get("input") or text
         except:
-            api_connected = False
+            user_input = text
 
-        try:
-            vector_store_connected = rag_service.vector_store.check_connection() if rag_service.vector_store else False
-        except:
-            vector_store_connected = False
+        result = await Runner.run(
+            starting_agent=agent,
+            input=user_input,
+            run_config=config
+        )
 
-        rag_available = api_connected and vector_store_connected
+        # SSE streaming
+        async def event_generator():
+            # If the agent streams tokens/steps
+            if hasattr(result, "__aiter__"):
+                async for step in result:
+                    yield f"data: {step.dict()}\n\n"
+            else:
+                yield f"data: {result.dict()}\n\n"
 
-    return HealthResponse(
-        status="ok" if rag_available else "degraded",
-        api_connected=api_connected,
-        vector_store_connected=vector_store_connected,
-        rag_available=rag_available
-    )
+        return StreamingResponse(event_generator(), media_type="text/event-stream")
 
-@app.post("/api/query", response_model=QueryResponse)
-async def query_endpoint(request: QueryRequest):
-    """
-    Query endpoint that processes user questions against the indexed documents.
-
-    Args:
-        request: QueryRequest containing the user's question
-
-    Returns:
-        QueryResponse with the answer and source documents
-    """
-    try:
-        if not rag_service:
-            # Check if the issue is due to missing configuration
-            qwen_key_missing = not os.getenv("QWEN_API_KEY")
-            qdrant_config_missing = not os.getenv("QDRANT_URL") or not os.getenv("QDRANT_API_KEY")
-
-            missing_parts = []
-            if qwen_key_missing:
-                missing_parts.append("QWEN_API_KEY")
-            if qdrant_config_missing:
-                missing_parts.append("QDRANT configuration")
-
-            error_msg = f"RAG service not available. Missing: {', '.join(missing_parts) if missing_parts else 'Unknown issue'}"
-            raise HTTPException(status_code=503, detail=error_msg)
-
-        # Process the query using the RAG service
-        response = rag_service.query(request.query)
-        return response
-    except HTTPException:
-        raise
     except Exception as e:
-        logger.error(f"Error processing query: {e}")
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+        logging.exception("Error in /api/query")
+        return Response(
+            content=json.dumps({"error": str(e)}),
+            media_type="application/json"
+        )
 
-@app.post("/api/selection", response_model=SelectionResponse)
-async def selection_endpoint(request: SelectionRequest):
-    """
-    Selection endpoint that answers questions based only on provided text.
 
-    Args:
-        request: SelectionRequest containing selected text and question
-
-    Returns:
-        SelectionResponse with the answer
-    """
-    try:
-        if not rag_service:
-            # Check if the issue is due to missing configuration
-            qwen_key_missing = not os.getenv("QWEN_API_KEY")
-
-            missing_parts = []
-            if qwen_key_missing:
-                missing_parts.append("QWEN_API_KEY")
-
-            error_msg = f"Selection service not available. Missing: {', '.join(missing_parts) if missing_parts else 'Unknown issue'}"
-            raise HTTPException(status_code=503, detail=error_msg)
-
-        # Process the selection-based request
-        response = rag_service.answer_from_selection(request.selected_text, request.question)
-        return response
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error processing selection: {e}")
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
-
-# Include middleware for error handling and logging
-@app.middleware("http")
-async def log_requests(request, call_next):
-    logger.info(f"Request: {request.method} {request.url}")
-    try:
-        response = await call_next(request)
-        logger.info(f"Response status: {response.status_code}")
-        return response
-    except Exception as e:
-        logger.error(f"Request failed: {e}")
-        raise
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

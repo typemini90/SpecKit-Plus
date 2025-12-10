@@ -54,19 +54,18 @@ const config: Config = {
       } satisfies Preset.Options,
     ],
   ],
-
+  scripts: [
+      {
+        src: 'https://cdn.jsdelivr.net/npm/@openai/chatkit/dist/chatkit.umd.js',
+        async: true,
+      },
+    ],
   themeConfig: {
     // Replace with your project's social card
     image: 'img/matrix-bg.png',
     colorMode: {
       respectPrefersColorScheme: true,
     },
-    scripts: [
-      {
-        src: 'https://cdn.platform.openai.com/deployments/chatkit/chatkit.js',
-        async: true,
-      },
-    ],
     navbar: {
       title: 'Embodied Intelligence',
       logo: {

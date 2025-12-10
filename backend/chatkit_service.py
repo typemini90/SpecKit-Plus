@@ -18,6 +18,7 @@ from qdrant_client import QdrantClient
 from qdrant_client.http import models
 import logging
 from loguru import logger
+from openai import AsyncOpenAI
 
 load_dotenv()
 

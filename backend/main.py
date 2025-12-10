@@ -18,8 +18,8 @@ from embeddings import EmbeddingService
 from vector_store import VectorStore
 from rag import RAGService, QueryRequest, QueryResponse, SelectionRequest, SelectionResponse
 
-# Import simple ChatKit API for MVP
-from simple_chatkit_api import app as chatkit_app
+# Import unified ChatKit API with RAG capabilities
+from chatkit_service import app as chatkit_app
 
 # Global variable to hold the RAG service instance
 rag_service = None
@@ -34,9 +34,9 @@ async def lifespan(app: FastAPI):
     global rag_service
     try:
         # Check if required environment variables are set
-        gemini_api_key = os.getenv("GEMINI_API_KEY")
-        if not gemini_api_key:
-            logger.warning("GEMINI_API_KEY not set. RAG service will not function properly.")
+        qwen_api_key = os.getenv("QWEN_API_KEY")
+        if not qwen_api_key:
+            logger.warning("QWEN_API_KEY not set. RAG service will not function properly.")
 
         # Only initialize RAG service if Qdrant credentials are available (for RAG features)
         qdrant_url = os.getenv("QDRANT_URL")
@@ -63,9 +63,9 @@ async def lifespan(app: FastAPI):
 
                     # Test API connection
                     if rag_service.check_api_connection():
-                        logger.info("Gemini API connection successful")
+                        logger.info("OpenAI API connection successful")
                     else:
-                        logger.error("Could not connect to Gemini API. RAG service will not function properly.")
+                        logger.error("Could not connect to OpenAI API. RAG service will not function properly.")
                         rag_service = None
                 except Exception as e:
                     logger.error(f"Failed to initialize RAG service: {e}")
@@ -161,12 +161,12 @@ async def query_endpoint(request: QueryRequest):
     try:
         if not rag_service:
             # Check if the issue is due to missing configuration
-            gemini_key_missing = not os.getenv("GEMINI_API_KEY")
+            qwen_key_missing = not os.getenv("QWEN_API_KEY")
             qdrant_config_missing = not os.getenv("QDRANT_URL") or not os.getenv("QDRANT_API_KEY")
 
             missing_parts = []
-            if gemini_key_missing:
-                missing_parts.append("GEMINI_API_KEY")
+            if qwen_key_missing:
+                missing_parts.append("QWEN_API_KEY")
             if qdrant_config_missing:
                 missing_parts.append("QDRANT configuration")
 
@@ -196,11 +196,11 @@ async def selection_endpoint(request: SelectionRequest):
     try:
         if not rag_service:
             # Check if the issue is due to missing configuration
-            gemini_key_missing = not os.getenv("GEMINI_API_KEY")
+            qwen_key_missing = not os.getenv("QWEN_API_KEY")
 
             missing_parts = []
-            if gemini_key_missing:
-                missing_parts.append("GEMINI_API_KEY")
+            if qwen_key_missing:
+                missing_parts.append("QWEN_API_KEY")
 
             error_msg = f"Selection service not available. Missing: {', '.join(missing_parts) if missing_parts else 'Unknown issue'}"
             raise HTTPException(status_code=503, detail=error_msg)

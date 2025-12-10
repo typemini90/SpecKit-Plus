@@ -6,17 +6,17 @@ import asyncio
 load_dotenv()
 
 client = AsyncOpenAI(
-    api_key=os.getenv("GEMINI_API_KEY"),
-    base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+    api_key=os.getenv("QWEN_API_KEY"),
+    base_url="https://portal.qwen.ai/v1"
 )
 
 async def test():
     try:
         r = await client.chat.completions.create(
-            model="gemini-2.0-flash",
+            model="qwen3-coder-plus",
             messages=[{"role": "user", "content": "ping"}]
         )
-        print(r.choices[0].message["content"])
+        print(r.choices[0].message.content)
     except Exception as e:
         print("ERROR:", e)
 

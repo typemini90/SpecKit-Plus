@@ -32,16 +32,16 @@ class RAGService:
         Initialize the RAG service with required components.
         """
         try:
-            # Initialize OpenAI client with Gemini
-            gemini_api_key = os.getenv("GEMINI_API_KEY")
-            if not gemini_api_key:
-                raise ValueError("GEMINI_API_KEY must be set in environment variables")
+            # Initialize Qwen client with Qwen API
+            qwen_api_key = os.getenv("QWEN_API_KEY")
+            if not qwen_api_key:
+                raise ValueError("QWEN_API_KEY must be set in environment variables")
 
-            self.openai_client = OpenAI(
-                api_key=gemini_api_key,
-                base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+            self.client = OpenAI(
+                api_key=qwen_api_key,
+                base_url="https://portal.qwen.ai/v1"
             )
-            self.model = "gemini-2.0-flash"
+            self.model = "qwen3-coder-plus"
 
             # We'll initialize vector store separately to avoid circular dependencies
             self.vector_store = None
@@ -119,7 +119,7 @@ class RAGService:
             If the context does not contain sufficient information to answer the question, respond with "I don't know".
             """
             
-            response = self.openai_client.chat.completions.create(
+            response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
                     {"role": "system", "content": "You are a helpful assistant that answers questions based only on the provided context. If the context does not contain sufficient information to answer the question, respond with 'I don't know'."},
@@ -163,7 +163,7 @@ class RAGService:
             If the selected text does not contain sufficient information to answer the question, respond with "I don't know".
             """
             
-            response = self.openai_client.chat.completions.create(
+            response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
                     {"role": "system", "content": "You are a helpful assistant that answers questions based only on the provided selected text. If the selected text does not contain sufficient information to answer the question, respond with 'I don't know'."},

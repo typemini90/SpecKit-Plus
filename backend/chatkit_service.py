@@ -1,5 +1,6 @@
 """
-Simple MVP ChatKit Server with direct Gemini integration
+Unified ChatKit Server with direct OpenAI integration and RAG capabilities.
+Combines features from simple_chatkit_api and chatkit_api into a single implementation.
 """
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel
@@ -13,20 +14,51 @@ from chatkit.server import ChatKitServer
 from chatkit.store import Store
 from chatkit.types import ThreadMetadata, ThreadItem, Page, UserMessageItem, AssistantMessageItem
 from chatkit.types import AssistantMessageContent
+from qdrant_client import QdrantClient
+from qdrant_client.http import models
+import logging
+from loguru import logger
 
 load_dotenv()
 
-# Initialize OpenAI client with Gemini
-gemini_api_key = os.getenv("GEMINI_API_KEY")
-if not gemini_api_key:
-    raise ValueError("GEMINI_API_KEY must be set in environment variables")
+# Initialize Qwen client with Qwen API
+qwen_api_key = os.getenv("QWEN_API_KEY")
+if not qwen_api_key:
+    raise ValueError("QWEN_API_KEY must be set in environment variables")
 
-openai_client = OpenAI(
-    api_key=gemini_api_key,
-    base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+client = AsyncOpenAI(
+    api_key=qwen_api_key,
+    base_url="https://portal.qwen.ai/v1"
 )
 
-model = "gemini-2.0-flash"
+model = "qwen3-coder-plus"
+
+# Initialize Qdrant client for RAG functionality
+qdrant_url = os.getenv("QDRANT_URL")
+qdrant_api_key = os.getenv("QDRANT_API_KEY")
+
+if not qdrant_url or not qdrant_api_key:
+    raise ValueError("QDRANT_URL and QDRANT_API_KEY must be set in environment variables")
+
+qdrant_client = QdrantClient(
+    url=qdrant_url,
+    api_key=qdrant_api_key,
+    prefer_grpc=False
+)
+
+# Initialize Qdrant collection if it doesn't exist
+collection_name = "book_content"
+collections = qdrant_client.get_collections().collections
+collection_names = [c.name for c in collections]
+
+if collection_name not in collection_names:
+    qdrant_client.create_collection(
+        collection_name=collection_name,
+        vectors_config=models.VectorParams(size=384, distance=models.Distance.COSINE)
+    )
+    logger.info(f"Created Qdrant collection '{collection_name}' with 384-dim vectors")
+else:
+    logger.info(f"Qdrant collection '{collection_name}' already exists")
 
 # In-memory store for MVP
 memory_store: Dict[str, Any] = {
@@ -34,8 +66,8 @@ memory_store: Dict[str, Any] = {
     "items": {}
 }
 
-class SimpleStore(Store[dict]):
-    """Simple in-memory store for MVP"""
+class UnifiedStore(Store[dict]):
+    """Unified in-memory store with RAG capabilities."""
 
     def generate_thread_id(self, context: dict) -> str:
         return f"thread_{uuid.uuid4().hex[:12]}"
@@ -108,16 +140,44 @@ class SimpleStore(Store[dict]):
     async def delete_attachment(self, attachment_id: str, context: dict) -> None:
         pass
 
-# Create ChatKit server
-store = SimpleStore()
+# Create store instance
+store = UnifiedStore()
 
-# Create ChatKit server with proper respond method implementation
-class SimpleChatKitServer(ChatKitServer):
+# Function to search documents in Qdrant
+def search_documents(query: str, limit: int = 5) -> List[Dict[str, Any]]:
+    """Search documents in Qdrant based on the query."""
+    try:
+        # Import embedding service to generate query embedding
+        from embeddings import EmbeddingService
+        embedding_service = EmbeddingService()
+        query_embedding = embedding_service.embed_text(query)
+        
+        search_results = qdrant_client.search(
+            collection_name=collection_name,
+            query_vector=query_embedding,
+            limit=limit
+        )
+
+        results = []
+        for result in search_results:
+            results.append({
+                "content": result.payload.get("content", ""),
+                "doc_path": result.payload.get("doc_path", ""),
+                "score": result.score
+            })
+
+        return results
+    except Exception as e:
+        logger.error(f"Error searching documents: {e}")
+        return []
+
+# Create unified ChatKit server with RAG capabilities
+class UnifiedChatKitServer(ChatKitServer):
     def __init__(self, store):
         super().__init__(store=store)
 
     async def respond(self, thread: ThreadMetadata, input: Any, context: dict):
-        """Simple response handler using Gemini API directly"""
+        """Response handler with conversation history and RAG capabilities."""
         # Extract text from input
         input_text = ""
         if hasattr(input, 'content') and input.content:
@@ -135,7 +195,7 @@ class SimpleChatKitServer(ChatKitServer):
             messages = [
                 {
                     "role": "system",
-                    "content": "You are a helpful assistant for the Embodied Intelligence textbook. Answer questions about robotics, AI, and embodied intelligence."
+                    "content": "You are a helpful assistant for the Physical AI & Humanoid Robotics textbook. Answer questions about robotics, AI, and embodied intelligence."
                 }
             ]
 
@@ -164,7 +224,7 @@ class SimpleChatKitServer(ChatKitServer):
             messages = [
                 {
                     "role": "system",
-                    "content": "You are a helpful assistant for the Embodied Intelligence textbook. Answer questions about robotics, AI, and embodied intelligence."
+                    "content": "You are a helpful assistant for the Physical AI & Humanoid Robotics textbook. Answer questions about robotics, AI, and embodied intelligence."
                 },
                 {
                     "role": "user",
@@ -172,18 +232,55 @@ class SimpleChatKitServer(ChatKitServer):
                 }
             ]
 
-        # Call Gemini API
-        response = openai_client.chat.completions.create(
-            model=model,
-            messages=messages,
-            max_tokens=500,
-            temperature=0.7
-        )
+        # Search for relevant documents using RAG
+        docs = search_documents(input_text)
+        context_str = ""
+        if docs:
+            context_str = "\n\n".join([doc["content"] for doc in docs])
 
-        answer = response.choices[0].message.content.strip()
+        # If we have relevant context, enhance the prompt with it
+        if context_str:
+            # Build prompt with RAG context
+            prompt = f"""
+            Context information is below:
+            {context_str}
 
-        # CRITICAL FIX: Generate a guaranteed unique ID to avoid collisions
-        # This addresses the potential ID collision issue when using non-OpenAI providers
+            Using the provided context information, answer the question: {input_text}
+
+            If the context does not contain sufficient information to answer the question, respond with "I don't know".
+            """
+            
+            # Call Qwen with RAG context
+            response = client.chat.completions.create(
+                model=model,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are a helpful assistant for the Physical AI & Humanoid Robotics textbook. Answer questions based on the provided context. If the context is insufficient, respond with 'I don't know'."
+                    },
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=500,
+                temperature=0.1
+            )
+
+            answer = response.choices[0].message.content.strip()
+        else:
+            # Call Qwen without RAG context
+            response = client.chat.completions.create(
+                model=model,
+                messages=messages,
+                max_tokens=500,
+                temperature=0.7
+            )
+
+            answer = response.choices[0].message.content.strip()
+
+        # Check if the answer is "I don't know"
+        if "i don't know" in answer.lower():
+            answer = "I don't know based on the available information. Try asking about specific topics in the Physical AI & Humanoid Robotics textbook."
+
+        # Create assistant message
         assistant_message = AssistantMessageItem(
             id=f"assistant_{uuid.uuid4().hex}",  # Using full UUID to ensure uniqueness
             thread_id=thread.id,  # Add the required thread_id
@@ -197,12 +294,12 @@ class SimpleChatKitServer(ChatKitServer):
         # Return the assistant message
         return assistant_message
 
-server = SimpleChatKitServer(store=store)
+server = UnifiedChatKitServer(store=store)
 
 # Create FastAPI app and mount ChatKit server
 app = FastAPI(
-    title="Simple ChatKit MVP Server",
-    description="Minimal ChatKit-based chatbot server with direct Gemini integration",
+    title="Unified ChatKit Server with RAG",
+    description="ChatKit-based chatbot server with direct OpenAI integration and RAG capabilities",
     version="1.0.0"
 )
 

@@ -40,7 +40,7 @@ All components adhere to these quality standards:
 Before starting the application, ensure you set the following environment variables in a `.env` file:
 
 ```
-GEMINI_API_KEY=your-gemini-api-key-here
+QWEN_API_KEY=your-qwen-api-key-here
 QDRANT_URL=your-qdrant-url-here
 QDRANT_API_KEY=your-qdrant-api-key-here
 ```

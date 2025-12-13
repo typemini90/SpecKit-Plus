@@ -23,7 +23,7 @@ class DocumentChunk(BaseModel):
     metadata: Dict[str, Any] = {}
 
 class VectorStore:
-    def __init__(self, collection_name: str = "book"):
+    def __init__(self, collection_name: str = "Humanoids"):
         """
         Initialize the vector store with Qdrant client.
 

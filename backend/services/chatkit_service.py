@@ -40,7 +40,7 @@ qdrant_client = QdrantClient(
 )
 
 # Initialize Qdrant collection if it doesn't exist
-collection_name = "book_content"
+collection_name = "Humanoids"
 collections = qdrant_client.get_collections().collections
 collection_names = [c.name for c in collections]
 

@@ -7,6 +7,11 @@ from pydantic import BaseModel
 from services.rag import RAGService
 from data.vector_store import VectorStore
 
+# Create global vector store instance to avoid creating on every request
+vector_store = VectorStore()
+rag_service = RAGService()
+rag_service.set_vector_store(vector_store)
+
 app = FastAPI()
 
 app.add_middleware(
@@ -43,14 +48,18 @@ async def handle_query(req: QueryRequest):
     """Handles general chat queries from the React component."""
     logging.info(f"Received general query: {req.query}")
 
-    # Use RAG service to get context from Qdrant
-    vector_store = VectorStore()
-    rag_service = RAGService()
-    rag_service.set_vector_store(vector_store)
-
+    # Use global RAG service to get context from Qdrant
     # Get relevant context from Qdrant
-    rag_result = rag_service.query(req.query)
-    context = rag_result.answer if rag_result.answer != "I don't know" else ""
+    try:
+        rag_result = await rag_service.query(req.query)
+        print(rag_result)
+        print(rag_result.sources)
+        context = rag_result.answer if rag_result.answer != "I don't know" else ""
+    except Exception as e:
+        logging.error(f"RAG query failed: {e}")
+        # Fallback to no context if RAG fails
+        rag_result = None
+        context = ""
 
     # Include context in the agent's query if available
     if context and context != "I don't know":
@@ -67,7 +76,7 @@ async def handle_query(req: QueryRequest):
     # CRITICAL: Response structure must match React component: {"answer": "...", "sources": []}
     return {
         "answer": result.final_output,
-        "sources": rag_result.sources if hasattr(rag_result, 'sources') else [] # Must be included, even if empty
+        "sources": rag_result.sources if rag_result and hasattr(rag_result, 'sources') else [] # Must be included, even if empty
     }
 
 @app.post("/api/selection")
@@ -75,14 +84,16 @@ async def handle_selection(req: SelectionRequest):
     """Handles queries based on selected text (RAG context)."""
     logging.info(f"Received selection query. Question: {req.question}")
     
-    # Use RAG service to get additional context from Qdrant
-    vector_store = VectorStore()
-    rag_service = RAGService()
-    rag_service.set_vector_store(vector_store)
-
+    # Use global RAG service to get additional context from Qdrant
     # Get relevant context from Qdrant based on the question
-    rag_result = rag_service.query(req.question)
-    additional_context = rag_result.answer if rag_result.answer != "I don't know" else ""
+    try:
+        rag_result = await rag_service.query(req.question)
+        additional_context = rag_result.answer if rag_result.answer != "I don't know" else ""
+    except Exception as e:
+        logging.error(f"RAG query failed: {e}")
+        # Fallback to no context if RAG fails
+        rag_result = None
+        additional_context = ""
 
     # Construct a RAG-style prompt for the agent
     if additional_context and additional_context != "I don't know":
@@ -108,5 +119,5 @@ async def handle_selection(req: SelectionRequest):
     # CRITICAL: Response structure must match React component: {"answer": "...", "sources": []}
     return {
         "answer": result.final_output,
-        "sources": rag_result.sources if hasattr(rag_result, 'sources') else [] # Must be included, even if empty
+        "sources": rag_result.sources if rag_result and hasattr(rag_result, 'sources') else [] # Must be included, even if empty
     }

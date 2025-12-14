@@ -38,6 +38,17 @@ export default function TranslateButton() {
     });
   };
 
+  // SSR-safe API_BASE definition
+  const getApiBase = () => {
+    if (typeof window !== 'undefined' && window.location) {
+      return window.location.hostname === "localhost"
+        ? "http://localhost:8000"
+        : "https://speckit-plus-production.up.railway.app";
+    }
+    // Default to production URL during SSR
+    return "https://speckit-plus-production.up.railway.app";
+  };
+
   const translate = async () => {
     if (isTranslating) return; // Prevent multiple clicks
 
@@ -78,8 +89,9 @@ export default function TranslateButton() {
       // Translate each piece of content
       for (const item of contentToTranslate) {
         if (item.originalText.trim() !== '' && !item.isCode) {
-          // Call the backend translation API
-          const res = await fetch('http://localhost:8000/api/translate-text', {
+          // Call the backend translation API with dynamic API base
+          const apiBase = getApiBase();
+          const res = await fetch(`${apiBase}/api/translate-text`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

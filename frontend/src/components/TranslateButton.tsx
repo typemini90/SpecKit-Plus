@@ -41,6 +41,12 @@ export default function TranslateButton() {
   const translate = async () => {
     if (isTranslating) return; // Prevent multiple clicks
 
+    // Check if running in browser environment
+    if (typeof window === 'undefined') {
+      setError('Translation is only available in browser environment');
+      return;
+    }
+
     setIsTranslating(true);
     setError(null);
 

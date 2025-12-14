@@ -1,9 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-const API_BASE = window.location.hostname === "localhost" 
-  ? "http://localhost:8000" 
-  : "https://speckit-plus-production.up.railway.app";
-  
+// SSR-safe API_BASE definition
+const getApiBase = () => {
+  if (typeof window !== 'undefined' && window.location) {
+    return window.location.hostname === "localhost"
+      ? "http://localhost:8000"
+      : "https://speckit-plus-production.up.railway.app";
+  }
+  // Default to production URL during SSR
+  return "https://speckit-plus-production.up.railway.app";
+};
+
+const API_BASE = getApiBase();
+
 // --- Icons ---
 const Icons = {
   Send: () => (
@@ -46,7 +55,7 @@ const SourceDropdown = ({ sources }) => {
 
   return (
     <div style={{ marginTop: '8px', borderTop: `1px solid ${theme.border}` }}>
-      <button 
+      <button
         onClick={() => setIsOpen(!isOpen)}
         style={{
           display: 'flex', alignItems: 'center', gap: '6px',
@@ -94,7 +103,7 @@ const ChatKitInterface = ({ conversationId = 'default-conversation', isEmbedded 
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [stagedSelection, setStagedSelection] = useState(null); 
+  const [stagedSelection, setStagedSelection] = useState(null);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -112,10 +121,10 @@ const ChatKitInterface = ({ conversationId = 'default-conversation', isEmbedded 
     const selected = getSelectedText();
     if (!selected) {
         alert("Please highlight text on the page first, then click this Quote button.");
-        return; 
+        return;
     }
     if (selected.length > 2000) return alert('Selection too long. Please pick a shorter section.');
-    
+
     setStagedSelection(selected);
     if (window.getSelection) window.getSelection().removeAllRanges();
   };
@@ -129,12 +138,12 @@ const ChatKitInterface = ({ conversationId = 'default-conversation', isEmbedded 
     if (!inputValue.trim() || isLoading) return;
 
     const actualQuestion = inputValue.trim();
-    const contextToSend = stagedSelection; 
-    
+    const contextToSend = stagedSelection;
+
     const userMessage = {
       id: Date.now(),
       text: actualQuestion,
-      context: contextToSend, 
+      context: contextToSend,
       sender: 'user',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
@@ -199,28 +208,28 @@ const ChatKitInterface = ({ conversationId = 'default-conversation', isEmbedded 
       border: `1px solid ${theme.border}`,
       boxShadow: '0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(0, 255, 65, 0.05)',
       fontFamily: '"Courier New", Courier, monospace',
-      overflow: 'hidden', 
+      overflow: 'hidden',
       position: 'relative'
     }}>
-      
+
       {/* Messages Area */}
-      <div style={{ 
-        flex: 1, 
-        padding: '20px', 
-        overflowY: 'auto', 
-        display: 'flex', 
-        flexDirection: 'column', 
+      <div style={{
+        flex: 1,
+        padding: '20px',
+        overflowY: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
         gap: '20px',
         scrollBehavior: 'smooth'
       }}>
         {messages.map(msg => (
-          <div key={msg.id} style={{ 
-            display: 'flex', 
+          <div key={msg.id} style={{
+            display: 'flex',
             flexDirection: 'column',
             alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start',
             maxWidth: '100%'
           }}>
-            
+
             {/* Context Bubble (If user selected text) */}
             {msg.context && (
               <div style={{
@@ -236,7 +245,7 @@ const ChatKitInterface = ({ conversationId = 'default-conversation', isEmbedded 
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
-                alignSelf: 'flex-end' 
+                alignSelf: 'flex-end'
               }}>
                 Reference: "{msg.context.substring(0, 60)}..."
               </div>
@@ -255,13 +264,13 @@ const ChatKitInterface = ({ conversationId = 'default-conversation', isEmbedded 
               boxShadow: msg.sender === 'user' ? 'none' : '0 4px 10px rgba(0,0,0,0.2)'
             }}>
               {msg.text}
-              
+
               {/* Dropdown References */}
               {msg.sources && msg.sources.length > 0 && (
                 <SourceDropdown sources={msg.sources} />
               )}
             </div>
-            
+
             {/* Timestamp */}
             <div style={{ fontSize: '10px', opacity: 0.4, marginTop: '5px', color: theme.primary, marginLeft: '5px' }}>
               {msg.sender === 'bot' ? 'AI' : 'You'} • {msg.timestamp}
@@ -281,13 +290,13 @@ const ChatKitInterface = ({ conversationId = 'default-conversation', isEmbedded 
       </div>
 
       {/* Input Area */}
-      <div style={{ 
-        padding: '15px 20px 20px 20px', 
-        borderTop: `1px solid ${theme.border}`, 
+      <div style={{
+        padding: '15px 20px 20px 20px',
+        borderTop: `1px solid ${theme.border}`,
         backgroundColor: 'rgba(0, 20, 10, 0.4)',
         position: 'relative'
       }}>
-        
+
         {/* Selection Preview Badge */}
         {stagedSelection && (
           <div style={{
@@ -314,11 +323,11 @@ const ChatKitInterface = ({ conversationId = 'default-conversation', isEmbedded 
 
         {/* Input Form */}
         <form onSubmit={handleSend} style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
-          
+
           {/* QUOTE / SELECTION BUTTON */}
           {!stagedSelection && (
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={handleCaptureSelection}
               title="Highlight text then click here to quote it"
               style={{
@@ -340,20 +349,20 @@ const ChatKitInterface = ({ conversationId = 'default-conversation', isEmbedded 
 
           <div style={{ flex: 1, position: 'relative' }}>
             <input
-              type="text" 
-              value={inputValue} 
+              type="text"
+              value={inputValue}
               onChange={e => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown} 
+              onKeyDown={handleKeyDown}
               disabled={isLoading}
               placeholder={stagedSelection ? "Ask about this quote..." : "Ask about robotics, AI..."}
-              style={{ 
-                width: '100%', 
-                padding: '14px 16px', 
-                border: `1px solid ${theme.border}`, 
-                borderRadius: '12px', 
-                backgroundColor: 'rgba(0,0,0,0.3)', 
-                color: theme.text, 
-                outline: 'none', 
+              style={{
+                width: '100%',
+                padding: '14px 16px',
+                border: `1px solid ${theme.border}`,
+                borderRadius: '12px',
+                backgroundColor: 'rgba(0,0,0,0.3)',
+                color: theme.text,
+                outline: 'none',
                 fontFamily: 'monospace',
                 fontSize: '14px'
               }}
@@ -362,15 +371,15 @@ const ChatKitInterface = ({ conversationId = 'default-conversation', isEmbedded 
             />
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={!inputValue.trim() || isLoading}
-            style={{ 
+            style={{
               height: '46px', width: '46px',
-              border: 'none', 
-              borderRadius: '12px', 
-              backgroundColor: (!inputValue.trim() || isLoading) ? '#1a3320' : theme.primary, 
-              color: (!inputValue.trim() || isLoading) ? '#446650' : '#001a0d', 
+              border: 'none',
+              borderRadius: '12px',
+              backgroundColor: (!inputValue.trim() || isLoading) ? '#1a3320' : theme.primary,
+              color: (!inputValue.trim() || isLoading) ? '#446650' : '#001a0d',
               cursor: (!inputValue.trim() || isLoading) ? 'default' : 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               transition: 'background-color 0.2s'

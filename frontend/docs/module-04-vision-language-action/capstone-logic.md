@@ -1,10 +1,10 @@
 ---
-sidebar_position: 4
+sidebar_position: 5
 ---
 
-# Capstone Logic: Complete VLA System Implementation
+# Autonomous Humanoid Implementation Guide
 
-The capstone logic represents the integration and orchestration of all components in a Vision-Language-Action (VLA) system. This section covers the end-to-end implementation and deployment considerations for complete VLA applications.
+This chapter provides implementation guidance for creating the complete Autonomous Humanoid system that integrates all the components learned throughout the course. This serves as a practical guide to implement the capstone project described in the previous chapter.
 
 ## Overview
 

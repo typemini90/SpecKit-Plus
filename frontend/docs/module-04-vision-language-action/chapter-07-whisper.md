@@ -2,13 +2,13 @@
 sidebar_position: 2
 ---
 
-# Chapter 7: Whisper Voice Integration - Voice-to-Action Logic
+# Voice-to-Action: Using OpenAI Whisper for Voice Commands
 
-This chapter explores the integration of OpenAI Whisper for speech recognition combined with ROS 2 for robotic control, creating a voice-to-action pipeline that enables natural human-robot interaction.
+This chapter explores the integration of OpenAI Whisper for speech recognition combined with ROS 2 for robotic control, creating a voice-to-action pipeline that enables natural human-robot interaction. This system serves as the foundation for translating human voice commands into robotic actions.
 
 ## Introduction to Voice-to-Action Systems
 
-Voice-to-Action systems bridge the gap between natural human language and robotic execution. By leveraging OpenAI's Whisper for speech recognition and ROS 2 for robotic control, we create a system that can understand spoken commands and execute appropriate actions.
+Voice-to-Action systems bridge the gap between natural human language and robotic execution. By leveraging OpenAI's Whisper for speech recognition and ROS 2 for robotic control, we create a system that can understand spoken commands and execute appropriate actions. This is a critical component of the Physical AI ecosystem, allowing humans to interact with robots using natural language.
 
 ## OpenAI Whisper for Speech Recognition
 

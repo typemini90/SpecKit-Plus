@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# Building a robot body in XML (URDF)
+# Gazebo Physics Simulation and URDF for Humanoids
 
 Unified Robot Description Format (URDF) is an XML-based format used to describe robotic systems in ROS. It defines the physical and visual properties of a robot, including links, joints, and their relationships.
 

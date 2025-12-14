@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# Chapter 05: Computer Vision - YOLO and Depth Cameras
+# Computer Vision - YOLO and Depth Cameras
 
 ## Introduction to Computer Vision in Robotics
 
